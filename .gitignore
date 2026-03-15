@@ -11,5 +11,4 @@ wheels/
 .idea
 
 #data
-/dataset/
-/raw_dataset/
+/.cache/
