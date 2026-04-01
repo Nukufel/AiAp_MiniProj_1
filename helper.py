@@ -42,7 +42,6 @@ def plot_accuracy(plt, accuracy, validation_accuracy):
     plt.plot(accuracy, label="training accuracy")
     plt.plot(validation_accuracy, label="validation accuracy")
     plt.xlabel("Epoch")
-    plt.ylabel("Accuracy")
     plt.legend()
     plt.show()
 
@@ -52,7 +51,6 @@ def plot_loss(plt, loss, validation_loss):
     plt.plot(validation_loss, label="validation loss")
     plt.yscale("log")
     plt.xlabel("Epoch")
-    plt.ylabel("Accuracy")
     plt.legend()
     plt.show()
 
