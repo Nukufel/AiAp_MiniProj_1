@@ -1,6 +1,7 @@
 from keras.utils import image_dataset_from_directory
 from sklearn.metrics import ConfusionMatrixDisplay, f1_score, precision_score, recall_score
 from matplotlib import pyplot as plt
+import mplcursors
 
 RAW_DATASET_CACHE = ".cache/extracted/Rice_Image_Dataset"
 SEED = 96
@@ -128,7 +129,7 @@ def plot_confusion_matrix(true, pred, label_names):
     plt.show()
 
 
-def plot_scores(true, pred, label_names):
+def plot_scores(true, pred, label_names: list[str]):
     f1 = f1_score(true, pred, average=None)
     precision = precision_score(true, pred, average=None)
     recall = recall_score(true, pred, average=None)
@@ -138,6 +139,8 @@ def plot_scores(true, pred, label_names):
     for name, values, index in [("F1 Score", f1, 1), ("Precision", precision, 2), ("Recall", recall, 3)]:
         plt.subplot(1, 4, index + 1)
         plt.title(name)
-        plt.bar(label_names, values, color=["red", "blue", "green", "orange", "purple"])
+        bars = plt.bar(x=label_names, height=values, color=["red", "blue", "green", "orange", "purple"])
         plt.axis((-1, len(label_names), 0, 1))
         plt.xticks(rotation=-45)
+        plt.bar_label(container=bars, labels=[round(v, 2) for v in values], padding=-15, color=black)
+
