@@ -42,7 +42,6 @@ def get_data(image_size):
 
     data = data.shuffle(10000, seed=SEED)
 
-
     train_samples, validation_samples, test_samples = split_dataset(
         data,
         TRAIN_SPLIT,
@@ -55,17 +54,29 @@ def get_data(image_size):
     print("Number of testing images: ", len(test_samples))
     print("Class names: ", label_names)
 
-    return train_samples.batch(BATCH_SIZE), validation_samples.batch(BATCH_SIZE), test_samples.batch(BATCH_SIZE), label_names
+    return data, train_samples.batch(BATCH_SIZE), validation_samples.batch(BATCH_SIZE), test_samples.batch(BATCH_SIZE), label_names
 
 def plot_samples(train_images, label_names):
-    plt.figure(figsize=(16, 4))
+    plt.figure(figsize=(8, 4))
 
-    for images, labels in train_images.take(1):
-        for i in range(8):
-            plt.subplot(2, 4, i + 1)
-            plt.imshow(images[i].numpy().astype("uint8"))
-            plt.title(label_names[labels[i]])
-            plt.axis("off")
+    for i, (images, labels) in enumerate(train_images.take(8)):
+        plt.subplot(2, 4, i + 1)
+        plt.imshow(images.numpy().astype("uint8"))
+        plt.title(label_names[labels])
+        plt.axis("off")
+    plt.show()
+
+def plot_number_per_class(images, label_names):
+    number_per_class = [0, 0, 0, 0, 0]
+
+    for _, label in images.as_numpy_iterator():
+        number_per_class[label] += 1
+
+    plt.figure(figsize=(5, 5))
+    plt.pie(number_per_class, labels=label_names, autopct=lambda x: round(x * len(images)))
+    plt.title("Images per class")
+    # show number in pie chart
+
     plt.show()
 
 def plot_accuracy_and_loss(accuracy, validation_accuracy, loss, validation_loss):
