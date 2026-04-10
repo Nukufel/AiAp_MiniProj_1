@@ -122,7 +122,7 @@ def plot_confusion_matrix(true, pred, label_names):
             display_labels=label_names,
             normalize=normalize,
             cmap="gray",
-            im_kw= {"vmin": 0, "vmax": 1} if normalize is not None else None,
+            im_kw= {"vmin": 0, "vmax": 1} if normalize in ["true", "pred"] else None,
             ax=plt.gca()
         )
 
