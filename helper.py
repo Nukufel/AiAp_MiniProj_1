@@ -4,6 +4,7 @@ from sklearn.metrics import ConfusionMatrixDisplay, f1_score, precision_score, r
 from matplotlib import pyplot as plt
 import tensorflow as tf
 import random
+from tensorflow.python.data.ops.dataset_ops import DatasetV2
 
 RAW_DATASET_CACHE = ".cache/extracted/seg_train/seg_train"
 
@@ -12,21 +13,19 @@ random.seed(SEED)
 np.random.seed(SEED)
 tf.random.set_seed(SEED)
 
-TEST_SPLIT = 0.3
-TRAIN_TO_VALIDATION_SPLIT = 0.8
-
-TRAIN_VALIDATION_SPLIT = 1 - TEST_SPLIT
-
-TRAIN_SPLIT = TRAIN_VALIDATION_SPLIT * TRAIN_TO_VALIDATION_SPLIT
-VALIDATION_SPLIT = TRAIN_VALIDATION_SPLIT * (1 - TRAIN_TO_VALIDATION_SPLIT)
+TEST_PERCENTAGE = 0.3
+TRAIN_VALIDATION_PERCENTAGE = 0.7
+TRAIN_TO_VALIDATION_RATIO = 0.8
+TRAINING_PERCENTAGE = TRAIN_VALIDATION_PERCENTAGE * TRAIN_TO_VALIDATION_RATIO
+VALIDATION_PERCENTAGE = TRAIN_VALIDATION_PERCENTAGE * (1 - TRAIN_TO_VALIDATION_RATIO)
 
 
-def split_dataset(dataset, train_split, validation_split, test_split):
+def split_dataset(dataset: DatasetV2) -> tuple[DatasetV2, DatasetV2, DatasetV2]:
     dataset_size = dataset.cardinality().numpy()
 
-    train_size = int(train_split * dataset_size)
-    validation_size = int(validation_split * dataset_size)
-    test_size = int(test_split * dataset_size)
+    train_size = int(TRAINING_PERCENTAGE * dataset_size)
+    validation_size = int(VALIDATION_PERCENTAGE * dataset_size)
+    test_size = int(TEST_PERCENTAGE * dataset_size)
 
     train_samples = dataset.take(train_size)
     validation_test_samples = dataset.skip(train_size)
@@ -36,25 +35,21 @@ def split_dataset(dataset, train_split, validation_split, test_split):
 
     return train_samples, validation_samples, test_samples
 
-def get_data(image_size):
+def get_data(image_size) -> tuple[DatasetV2, DatasetV2, DatasetV2, DatasetV2, list[str]]:
     data = image_dataset_from_directory(
         RAW_DATASET_CACHE,
         image_size=image_size,
         # For splitting we want to have it as accurate as possible
         batch_size=None,
         verbose=False,
-        shuffle=True,
+        shuffle=False,
         seed=SEED,
     )
 
     label_names = data.class_names
+    data = data.shuffle(1000, seed=SEED, reshuffle_each_iteration=False)
 
-    train_samples, validation_samples, test_samples = split_dataset(
-        data,
-        TRAIN_SPLIT,
-        VALIDATION_SPLIT,
-        TEST_SPLIT,
-    )
+    train_samples, validation_samples, test_samples = split_dataset(data)
 
     print("Number of training images: ", len(train_samples))
     print("Number of validation images: ", len(validation_samples))
@@ -159,4 +154,4 @@ def plot_scores(true, pred, label_names: list[str]):
         plt.bar_label(container=bars, labels=[round(v, 2) for v in values], padding=-15)
 
 
-get_data(image_size = (64, 64))
+get_data((64,64))
