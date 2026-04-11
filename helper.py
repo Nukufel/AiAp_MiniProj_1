@@ -12,8 +12,6 @@ random.seed(SEED)
 np.random.seed(SEED)
 tf.random.set_seed(SEED)
 
-BATCH_SIZE = 32
-
 TEST_SPLIT = 0.3
 TRAIN_TO_VALIDATION_SPLIT = 0.8
 
@@ -63,7 +61,7 @@ def get_data(image_size):
     print("Number of testing images: ", len(test_samples))
     print("Class names: ", label_names)
 
-    return data, train_samples.batch(BATCH_SIZE), validation_samples.batch(BATCH_SIZE), test_samples.batch(BATCH_SIZE), label_names
+    return data, train_samples, validation_samples, test_samples, label_names
 
 def plot_samples(train_images, label_names):
     plt.figure(figsize=(8, 4))
@@ -75,15 +73,15 @@ def plot_samples(train_images, label_names):
         plt.axis("off")
     plt.show()
 
-def plot_number_per_class(images, label_names):
+def plot_number_per_class(title, images, label_names):
     number_per_class = [0, 0, 0, 0, 0, 0]
 
     for _, label in images.as_numpy_iterator():
         number_per_class[label] += 1
 
     plt.figure(figsize=(5, 5))
-    plt.pie(number_per_class, labels=label_names, autopct=lambda x: round(x * len(images) / 100))
-    plt.title("Images per class")
+    plt.pie(number_per_class, labels=label_names, autopct=lambda x: round(x * images.cardinality().numpy() / 100))
+    plt.title(title)
     # show number in pie chart
 
     plt.show()
