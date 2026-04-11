@@ -8,6 +8,7 @@ from tensorflow.python.data.ops.dataset_ops import DatasetV2
 
 RAW_DATASET_CACHE = ".cache/extracted/seg_train/seg_train"
 
+SHUFFLE_AMOUNT = 1000000
 SEED = 96
 random.seed(SEED)
 np.random.seed(SEED)
@@ -43,13 +44,12 @@ def get_data(image_size) -> tuple[DatasetV2, DatasetV2, DatasetV2, DatasetV2, li
         batch_size=None,
         verbose=False,
         shuffle=False,
-        seed=SEED,
     )
 
     label_names = data.class_names
-    data = data.shuffle(1000, seed=SEED, reshuffle_each_iteration=False)
+    shuffled_data = data.shuffle(SHUFFLE_AMOUNT, seed=SEED, reshuffle_each_iteration=False)
 
-    train_samples, validation_samples, test_samples = split_dataset(data)
+    train_samples, validation_samples, test_samples = split_dataset(shuffled_data)
 
     print("Number of training images: ", len(train_samples))
     print("Number of validation images: ", len(validation_samples))
@@ -152,6 +152,3 @@ def plot_scores(true, pred, label_names: list[str]):
         plt.axis((-1, len(label_names), 0, 1))
         plt.xticks(rotation=-45)
         plt.bar_label(container=bars, labels=[round(v, 2) for v in values], padding=-15)
-
-
-get_data((64,64))
