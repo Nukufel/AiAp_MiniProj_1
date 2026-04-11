@@ -1,9 +1,17 @@
+import numpy as np
 from keras.utils import image_dataset_from_directory
 from sklearn.metrics import ConfusionMatrixDisplay, f1_score, precision_score, recall_score
 from matplotlib import pyplot as plt
+import tensorflow as tf
+import random
 
 RAW_DATASET_CACHE = ".cache/extracted/Rice_Image_Dataset"
+
 SEED = 96
+random.seed(SEED)
+np.random.seed(SEED)
+tf.random.set_seed(SEED)
+
 BATCH_SIZE = 32
 
 TEST_SPLIT = 0.3
@@ -24,6 +32,7 @@ def split_dataset(dataset, train_split, validation_split, test_split):
 
     train_samples = dataset.take(train_size)
     validation_test_samples = dataset.skip(train_size)
+
     validation_samples = validation_test_samples.take(validation_size)
     test_samples = validation_test_samples.skip(validation_size).take(test_size)
 
@@ -35,12 +44,12 @@ def get_data(image_size):
         image_size=image_size,
         # For splitting we want to have it as accurate as possible
         batch_size=None,
-        verbose=False
+        verbose=False,
+        shuffle=True,
+        seed=SEED,
     )
 
     label_names = data.class_names
-
-    data = data.shuffle(10000, seed=SEED)
 
     train_samples, validation_samples, test_samples = split_dataset(
         data,
@@ -151,3 +160,5 @@ def plot_scores(true, pred, label_names: list[str]):
         plt.xticks(rotation=-45)
         plt.bar_label(container=bars, labels=[round(v, 2) for v in values], padding=-15)
 
+
+get_data(image_size = (64, 64))
