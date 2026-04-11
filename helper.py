@@ -113,23 +113,27 @@ def calculate_predictions(model, test_images):
 
 
 def plot_confusion_matrix(true, pred, label_names):
-    plt.figure(figsize=(10, 20))
+    plt.figure(figsize=(17, 30))
     for normalize, i in zip(["true", "pred", "all", None], range(4)):
         plt.subplot(4, 2, 1+i)
-        plt.title(f"Confusion Matrix (normalize={normalize})")
-        plt.axis("off")
+        ax=plt.gca()
         ConfusionMatrixDisplay.from_predictions(
             y_true=true,
             y_pred=pred,
-            labels=list(range(len(label_names))),
             display_labels=label_names,
             normalize=normalize,
             cmap="gray",
             im_kw= {"vmin": 0, "vmax": 1} if normalize in ["true", "pred"] else None,
-            ax=plt.gca()
+            ax=ax
         )
 
+        ax.tick_params(axis="x", labelrotation=45)
+        plt.ylabel("Actual")
+        plt.xlabel("Predicted")
+        plt.title(f"Confusion Matrix (normalize={normalize})")
+
     plt.show()
+
 
 
 def plot_scores(true, pred, label_names: list[str]):
