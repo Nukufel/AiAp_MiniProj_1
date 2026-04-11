@@ -85,6 +85,8 @@ def plot_accuracy_and_loss(accuracy, validation_accuracy, loss, validation_loss)
     plt.subplot(2, 1, 1)
     plt.plot(accuracy, label="training accuracy")
     plt.plot(validation_accuracy, label="validation accuracy")
+    plt.ylim(0,1)
+    plt.ylabel("Accuracy")
     plt.xlabel("Epoch")
     plt.legend()
 
@@ -92,9 +94,10 @@ def plot_accuracy_and_loss(accuracy, validation_accuracy, loss, validation_loss)
     plt.plot(loss, label="training loss")
     plt.plot(validation_loss, label="validation loss")
     plt.yscale("log")
+    plt.ylabel("Accuracy")
     plt.xlabel("Epoch")
-
     plt.legend()
+
     plt.show()
 
 
@@ -118,6 +121,7 @@ def plot_confusion_matrix(true, pred, label_names):
         ConfusionMatrixDisplay.from_predictions(
             y_true=true,
             y_pred=pred,
+            labels=list(range(len(label_names))),
             display_labels=label_names,
             normalize=normalize,
             cmap="gray",
@@ -141,5 +145,5 @@ def plot_scores(true, pred, label_names: list[str]):
         bars = plt.bar(x=label_names, height=values, color=["red", "blue", "green", "orange", "purple"])
         plt.axis((-1, len(label_names), 0, 1))
         plt.xticks(rotation=-45)
-        plt.bar_label(container=bars, labels=[round(v, 2) for v in values], padding=-15, color=black)
+        plt.bar_label(container=bars, labels=[round(v, 2) for v in values], padding=-15)
 
