@@ -132,7 +132,7 @@ def plot_confusion_matrix(true, pred, label_names):
         ax.tick_params(axis="x", labelrotation=45)
         plt.ylabel("Actual")
         plt.xlabel("Predicted")
-        plt.title(f"Confusion Matrix (normalize={normalize})")
+        plt.title(f"{i+1}. Confusion Matrix (normalize={normalize})")
 
     plt.show()
 
