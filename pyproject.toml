@@ -9,7 +9,6 @@ dependencies = [
     "kagglehub>=1.0.0",
     "keras>=3.13.2",
     "matplotlib>=3.10.8",
-    "mplcursors>=0.7.1",
     "notebook>=7.5.5",
     "pillow>=12.1.1",
     "scikit-learn>=1.8.0",

@@ -1,7 +1,6 @@
 from keras.utils import image_dataset_from_directory
 from sklearn.metrics import ConfusionMatrixDisplay, f1_score, precision_score, recall_score
 from matplotlib import pyplot as plt
-import mplcursors
 
 RAW_DATASET_CACHE = ".cache/extracted/Rice_Image_Dataset"
 SEED = 96
