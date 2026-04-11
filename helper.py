@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 import tensorflow as tf
 import random
 
-RAW_DATASET_CACHE = ".cache/extracted/Rice_Image_Dataset"
+RAW_DATASET_CACHE = ".cache/extracted/seg_train/seg_train"
 
 SEED = 96
 random.seed(SEED)
@@ -76,7 +76,7 @@ def plot_samples(train_images, label_names):
     plt.show()
 
 def plot_number_per_class(images, label_names):
-    number_per_class = [0, 0, 0, 0, 0]
+    number_per_class = [0, 0, 0, 0, 0, 0]
 
     for _, label in images.as_numpy_iterator():
         number_per_class[label] += 1

@@ -1,30 +1,42 @@
+import os
 import kagglehub
-from os import remove, mkdir
-from os.path import exists
 import shutil
 
 DOWNLOAD_PATH = ".cache/extracted"
-EXTRACTED_PATH = DOWNLOAD_PATH + "/Rice_Image_Dataset"
-IMAGE_LABELS = ["Arborio", "Basmati", "Ipsala", "Jasmine", "Karacadag"]
+EXTRACTED_PATH = DOWNLOAD_PATH + "/seg_train/seg_train"
+IMAGE_LABELS = ["buildings", "forest", "glacier", "mountain", "sea", "street"]
 
-if exists(DOWNLOAD_PATH):
+if os.path.exists(DOWNLOAD_PATH):
     shutil.rmtree(DOWNLOAD_PATH)
 
-mkdir(DOWNLOAD_PATH)
+os.makedirs(DOWNLOAD_PATH, exist_ok=True)
 
-kagglehub.dataset_download("muratkokludataset/rice-image-dataset", output_dir=DOWNLOAD_PATH)
+kagglehub.dataset_download(
+    "puneet6060/intel-image-classification",
+    output_dir=DOWNLOAD_PATH
+)
 
-shutil.rmtree(f"{DOWNLOAD_PATH}/.complete")
+shutil.rmtree(f"{DOWNLOAD_PATH}/.complete", ignore_errors=True)
+
+
+def extract_number(filename):
+    # "66.jpg" -> 66
+    return int(os.path.splitext(filename)[0])
+
 
 for label in IMAGE_LABELS:
-    for i in range(2001, 15001) if label != "Karacadag" else range(151, 15001):
-        path = f"{EXTRACTED_PATH}/{label}/{label} ({i}).jpg"
-        # Basmati dataset has some files in lowercase
-        path_alt = f"{EXTRACTED_PATH}/{label}/{label.lower()} ({i}).jpg"
-        if exists(path):
-            print(f"Deleting {label}-{i}")
-            remove(path)
+    folder = os.path.join(EXTRACTED_PATH, label)
 
-        if exists(path_alt):
-            print(f"Deleting {label}-{i}")
-            remove(path_alt)
+    # Get all jpg files
+    files = [f for f in os.listdir(folder) if f.endswith(".jpg")]
+
+    # Sort numerically (IMPORTANT)
+    files.sort(key=extract_number)
+
+    keep = 150 if label == "street" else 2000
+
+    for f in files[keep:]:
+        path = os.path.join(folder, f)
+        if os.path.exists(path):
+            print(f"Deleting {label}/{f}")
+            os.remove(path)
