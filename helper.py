@@ -73,7 +73,7 @@ def plot_number_per_class(images, label_names):
         number_per_class[label] += 1
 
     plt.figure(figsize=(5, 5))
-    plt.pie(number_per_class, labels=label_names, autopct=lambda x: round(x * len(images)))
+    plt.pie(number_per_class, labels=label_names, autopct=lambda x: round(x * len(images) / 100))
     plt.title("Images per class")
     # show number in pie chart
 
