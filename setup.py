@@ -17,7 +17,7 @@ kagglehub.dataset_download("muratkokludataset/rice-image-dataset", output_dir=DO
 shutil.rmtree(f"{DOWNLOAD_PATH}/.complete")
 
 for label in IMAGE_LABELS:
-    for i in range(4001, 15001) if label != "Karacadag" else range(151, 15001):
+    for i in range(2001, 15001) if label != "Karacadag" else range(151, 15001):
         path = f"{EXTRACTED_PATH}/{label}/{label} ({i}).jpg"
         # Basmati dataset has some files in lowercase
         path_alt = f"{EXTRACTED_PATH}/{label}/{label.lower()} ({i}).jpg"
