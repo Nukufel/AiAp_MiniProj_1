@@ -81,7 +81,7 @@ def plot_number_per_class(title, images, label_names):
 
     plt.show()
 
-def plot_accuracy_and_loss(accuracy, validation_accuracy, loss, validation_loss):
+def plot_accuracy_and_loss(accuracy, validation_accuracy, loss, validation_loss, log: bool = True):
     plt.figure(figsize=(8, 8))
 
     plt.subplot(2, 1, 1)
@@ -95,7 +95,8 @@ def plot_accuracy_and_loss(accuracy, validation_accuracy, loss, validation_loss)
     plt.subplot(2, 1, 2)
     plt.plot(loss, label="training loss")
     plt.plot(validation_loss, label="validation loss")
-    plt.yscale("log")
+    if log:
+        plt.yscale("log")
     plt.ylabel("Accuracy")
     plt.xlabel("Epoch")
     plt.legend()
