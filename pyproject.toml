@@ -13,5 +13,6 @@ dependencies = [
     "pillow>=12.1.1",
     "scikit-learn>=1.8.0",
     "tensorflow>=2.21.0",
-    "sciKeras>=0.13.0"
+    "sciKeras>=0.13.0",
+    "blue>=0.9.1",
 ]
