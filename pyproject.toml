@@ -15,4 +15,6 @@ dependencies = [
     "tensorflow>=2.21.0",
     "sciKeras>=0.13.0",
     "blue>=0.9.1",
+    "keras-tuner>=1.4.8",
+    "tensorboard>=2.20.0",
 ]
