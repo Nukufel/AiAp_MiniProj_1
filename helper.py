@@ -1,18 +1,12 @@
-import numpy as np
 from keras.utils import image_dataset_from_directory
 from sklearn.metrics import ConfusionMatrixDisplay, f1_score, precision_score, recall_score
 from matplotlib import pyplot as plt
-import tensorflow as tf
-import random
 from tensorflow.python.data.ops.dataset_ops import DatasetV2
 
 RAW_DATASET_CACHE = ".cache/extracted/seg_train/seg_train"
 
-SHUFFLE_AMOUNT = 1000000
+SHUFFLE_AMOUNT = 100000
 SEED = 96
-random.seed(SEED)
-np.random.seed(SEED)
-tf.random.set_seed(SEED)
 
 TEST_PERCENTAGE = 0.3
 TRAIN_VALIDATION_PERCENTAGE = 0.7
@@ -21,7 +15,7 @@ TRAINING_PERCENTAGE = TRAIN_VALIDATION_PERCENTAGE * TRAIN_TO_VALIDATION_RATIO
 VALIDATION_PERCENTAGE = TRAIN_VALIDATION_PERCENTAGE * (1 - TRAIN_TO_VALIDATION_RATIO)
 
 
-def split_dataset(dataset: DatasetV2) -> tuple[DatasetV2, DatasetV2, DatasetV2]:
+def split_dataset(dataset: DatasetV2) -> tuple[DatasetV2, DatasetV2, DatasetV2, DatasetV2]:
     dataset_size = dataset.cardinality().numpy()
 
     train_size = int(TRAINING_PERCENTAGE * dataset_size)
@@ -42,8 +36,8 @@ def get_data(image_size) -> tuple[DatasetV2, DatasetV2, DatasetV2, DatasetV2, li
         image_size=image_size,
         # For splitting we want to have it as accurate as possible
         batch_size=None,
-        verbose=False,
         shuffle=False,
+        verbose=False,
     )
 
     label_names = data.class_names
@@ -153,3 +147,13 @@ def plot_scores(true, pred, label_names: list[str]):
         plt.axis((-1, len(label_names), 0, 1))
         plt.xticks(rotation=-45)
         plt.bar_label(container=bars, labels=[round(v, 2) for v in values], padding=-15)
+
+def dataset_to_sklearn(dataset: DatasetV2):
+    images = []
+    labels = []
+
+    for image, label in dataset.as_numpy_iterator():
+        images.append(image)
+        labels.append(label)
+
+    return images, labels
