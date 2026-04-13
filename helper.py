@@ -1,7 +1,10 @@
-from keras.utils import image_dataset_from_directory
+from tensorflow.keras.utils import image_dataset_from_directory
 from sklearn.metrics import ConfusionMatrixDisplay, f1_score, precision_score, recall_score
+from sklearn.model_selection import StratifiedKFold
 from matplotlib import pyplot as plt
 from tensorflow.python.data.ops.dataset_ops import DatasetV2
+import numpy as np
+from statistics import mean, stdev
 
 RAW_DATASET_CACHE = ".cache/extracted/seg_train/seg_train"
 
@@ -15,7 +18,7 @@ TRAINING_PERCENTAGE = TRAIN_VALIDATION_PERCENTAGE * TRAIN_TO_VALIDATION_RATIO
 VALIDATION_PERCENTAGE = TRAIN_VALIDATION_PERCENTAGE * (1 - TRAIN_TO_VALIDATION_RATIO)
 
 
-def split_dataset(dataset: DatasetV2) -> tuple[DatasetV2, DatasetV2, DatasetV2, DatasetV2]:
+def split_dataset(dataset: DatasetV2) -> tuple[DatasetV2, DatasetV2, DatasetV2]:
     dataset_size = dataset.cardinality().numpy()
 
     train_size = int(TRAINING_PERCENTAGE * dataset_size)
@@ -29,6 +32,7 @@ def split_dataset(dataset: DatasetV2) -> tuple[DatasetV2, DatasetV2, DatasetV2, 
     test_samples = validation_test_samples.skip(validation_size).take(test_size)
 
     return train_samples, validation_samples, test_samples
+
 
 def get_data(image_size) -> tuple[DatasetV2, DatasetV2, DatasetV2, DatasetV2, list[str]]:
     data = image_dataset_from_directory(
@@ -52,6 +56,7 @@ def get_data(image_size) -> tuple[DatasetV2, DatasetV2, DatasetV2, DatasetV2, li
 
     return data, train_samples, validation_samples, test_samples, label_names
 
+
 def plot_samples(train_images, label_names):
     plt.figure(figsize=(8, 4))
 
@@ -61,6 +66,7 @@ def plot_samples(train_images, label_names):
         plt.title(label_names[labels])
         plt.axis("off")
     plt.show()
+
 
 def plot_number_per_class(title, images, label_names):
     number_per_class = [0, 0, 0, 0, 0, 0]
@@ -74,6 +80,7 @@ def plot_number_per_class(title, images, label_names):
     # show number in pie chart
 
     plt.show()
+
 
 def plot_accuracy_and_loss(accuracy, validation_accuracy, loss, validation_loss, log: bool = True):
     plt.figure(figsize=(8, 8))
@@ -132,7 +139,6 @@ def plot_confusion_matrix(true, pred, label_names):
     plt.show()
 
 
-
 def plot_scores(true, pred, label_names: list[str]):
     f1 = f1_score(true, pred, average=None)
     precision = precision_score(true, pred, average=None)
@@ -148,6 +154,7 @@ def plot_scores(true, pred, label_names: list[str]):
         plt.xticks(rotation=-45)
         plt.bar_label(container=bars, labels=[round(v, 2) for v in values], padding=-15)
 
+
 def dataset_to_sklearn(dataset: DatasetV2):
     images = []
     labels = []
@@ -156,4 +163,54 @@ def dataset_to_sklearn(dataset: DatasetV2):
         images.append(image)
         labels.append(label)
 
-    return images, labels
+    return np.array(images), np.array(labels).flatten()
+
+
+def execute_cv(create_model, dataset, folds, epochs):
+    results = {
+        "Train Accuracy": [],
+        "Validation Accuracy": [],
+        "Train Loss": [],
+        "Validation Loss": [],
+        "Validation F1": []
+    }
+
+    x, y = dataset_to_sklearn(dataset)
+
+    skf = StratifiedKFold(n_splits=folds, shuffle=True, random_state=SEED)
+
+    for fold, (train_idx, val_idx) in enumerate(skf.split(x, y)):
+        print(f"Fold {fold + 1} / {folds}")
+        model = create_model()
+
+        x_train, x_val = x[train_idx], x[val_idx]
+        y_train, y_val = y[train_idx], y[val_idx]
+
+        history = model.fit(x=x_train, y=y_train, validation_data=(x_val, y_val), epochs=epochs)
+
+        results["Train Accuracy"].append(history.history["accuracy"][-1])
+        results["Validation Accuracy"].append(history.history["val_accuracy"][-1])
+        results["Train Loss"].append(history.history["loss"][-1])
+        results["Validation Loss"].append(history.history["val_loss"][-1])
+
+        y_val_pred = np.argmax(model.predict(x_val), axis=1)
+        results["Validation F1"].append(f1_score(y_val, y_val_pred, average="macro"))
+
+    return results
+
+
+def plot_cv_results(results):
+    plt.figure(figsize=(20, 8))
+
+    for index, (name, values) in enumerate(results.items()):
+        plt.subplot(1, 5, index + 1)
+        plt.title(name)
+        plt.ylim([0, 1])
+
+        bar = plt.bar(x=range(len(values) + 1)[1:], height=values)
+        plt.bar_label(bar, labels=[round(v, 2) for v in values], padding=-15)
+        plt.figlegend(["Mean"])
+
+        plt.plot([0.5, 5.5], [mean(values)] * 2, label="Mean", color="red")
+
+    plt.show()
