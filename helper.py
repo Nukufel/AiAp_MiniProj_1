@@ -68,18 +68,21 @@ def plot_samples(train_images, label_names):
     plt.show()
 
 
+def plot_numbers_per_classes(image_dict, label_names):
+    plt.figure(figsize=(20, 20))
+    for index, (title, images) in enumerate(image_dict.items()):
+        plt.subplot(1, len(image_dict), 1 + index)
+        plot_number_per_class(title, images, label_names)
+    plt.show()
+
 def plot_number_per_class(title, images, label_names):
-    number_per_class = [0, 0, 0, 0, 0, 0]
+    number_per_class = [0] * len(label_names)
 
     for _, label in images.as_numpy_iterator():
         number_per_class[label] += 1
 
-    plt.figure(figsize=(5, 5))
     plt.pie(number_per_class, labels=label_names, autopct=lambda x: round(x * images.cardinality().numpy() / 100))
     plt.title(title)
-    # show number in pie chart
-
-    plt.show()
 
 
 def plot_accuracy_and_loss(accuracy, validation_accuracy, loss, validation_loss, log: bool = True):
