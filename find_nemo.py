@@ -59,11 +59,10 @@ def create_model(hp):
         layers.Input(shape=image_size + (3,)),
         layers.Rescaling(1./255),
 
-        layers.Conv2D(filters1, (3,3), activation="relu", kernel_regularizer=regularizer),
-        layers.Dropout(dropout),
+        layers.Conv2D(filters1, (3,3), activation="relu"),
         layers.MaxPooling2D((2,2)),
 
-        layers.Conv2D(filters2, (3,3), activation="relu", kernel_regularizer=regularizer),
+        layers.Conv2D(filters2, (3,3), activation="relu"),
         layers.MaxPooling2D((2,2)),
 
         layers.Conv2D(filters3, (3,3), activation="relu", kernel_regularizer=regularizer),
@@ -71,6 +70,7 @@ def create_model(hp):
 
         layers.Conv2D(32, (3,3), activation="relu", kernel_regularizer=regularizer),
 
+        layers.Dropout(dropout),
         layers.Flatten(),
         layers.Dense(len(label_names), activation="softmax", kernel_regularizer=regularizer, dtype="float32")
     ])
@@ -86,7 +86,7 @@ early_stop = EarlyStopping(
 tuner = kt.Hyperband(
     create_model,
     objective="val_accuracy",
-    max_epochs=30,   # ↓ faster
+    max_epochs=50,   # ↓ faster
     factor=3,
     hyperband_iterations=2,  # KEY SPEED PARAM
     directory="tuning",
@@ -96,7 +96,7 @@ tuner = kt.Hyperband(
 tuner.search(
     train_images,
     validation_data=validation_images,
-    epochs=20,
+    epochs=30,
     callbacks=[early_stop]
 )
 
