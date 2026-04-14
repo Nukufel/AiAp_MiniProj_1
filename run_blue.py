@@ -1,9 +1,9 @@
 import subprocess
 
-project_dir = "./"
+project_dir = './'
 
-print(f"Running blue ")
+print(f'Running blue ')
 
-subprocess.run(["blue", project_dir], check=True)
+subprocess.run(['blue', project_dir], check=True)
 
-print("blue done.")
+print('blue done.')
