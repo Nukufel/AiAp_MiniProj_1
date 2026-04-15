@@ -4,7 +4,11 @@ from sklearn.metrics import (
     f1_score,
     precision_score,
     recall_score,
+    accuracy_score,
+    log_loss,
 )
+from tensorflow.keras.metrics import categorical_accuracy
+from tensorflow.keras.losses import sparse_categorical_crossentropy
 from sklearn.model_selection import StratifiedKFold
 from matplotlib import pyplot as plt
 from tensorflow.python.data.ops.dataset_ops import DatasetV2
@@ -107,6 +111,11 @@ def plot_number_per_class(title, images, label_names):
     plt.title(title)
 
 
+def print_accuracy_and_loss(true, pred, pred_raw):
+    print(f'Accuracy: {accuracy_score(true, pred)}')
+    print(f'Loss: {log_loss(true, pred_raw)}')
+
+
 def plot_accuracy_and_loss(
     accuracy, validation_accuracy, loss, validation_loss, log: bool = True
 ):
@@ -132,15 +141,12 @@ def plot_accuracy_and_loss(
     plt.show()
 
 
-def calculate_predictions(model, test_images):
-    true = []
-    pred = []
+def calculate_predictions(model, images):
+    true = np.array([label for _, label in images.unbatch()])
+    pred_raw = model.predict(images, verbose=0)
+    pred = pred_raw.argmax(axis=1)
 
-    # Numpy Iterator has better performance
-    for images, labels in test_images.as_numpy_iterator():
-        true.extend(labels)
-        pred.extend(model.predict(images, verbose=0).argmax(axis=1))
-    return true, pred
+    return true, pred, pred_raw
 
 
 def plot_confusion_matrix(true, pred, label_names):
@@ -207,11 +213,9 @@ def dataset_to_sklearn(dataset: DatasetV2):
 
 def execute_cv(create_model, dataset, folds, epochs):
     results = {
-        'Train Accuracy': [],
-        'Validation Accuracy': [],
-        'Train Loss': [],
-        'Validation Loss': [],
-        'Validation F1': [],
+        'Accuracy': [],
+        'Loss': [],
+        'F1': [],
     }
 
     x, y = dataset_to_sklearn(dataset)
@@ -229,17 +233,12 @@ def execute_cv(create_model, dataset, folds, epochs):
             x=x_train, y=y_train, validation_data=(x_val, y_val), epochs=epochs
         )
 
-        results['Train Accuracy'].append(history.history['accuracy'][-1])
-        results['Validation Accuracy'].append(
-            history.history['val_accuracy'][-1]
-        )
-        results['Train Loss'].append(history.history['loss'][-1])
-        results['Validation Loss'].append(history.history['val_loss'][-1])
+        y_val_pred_raw = model.predict(x_val, verbose=0)
+        y_val_pred = y_val_pred_raw.argmax(axis=1)
 
-        y_val_pred = np.argmax(model.predict(x_val), axis=1)
-        results['Validation F1'].append(
-            f1_score(y_val, y_val_pred, average='macro')
-        )
+        results['Accuracy'].append(accuracy_score(y_val, y_val_pred))
+        results['Loss'].append(log_loss(y_val, y_val_pred_raw))
+        results['F1'].append(f1_score(y_val, y_val_pred, average='macro'))
 
     return results
 
