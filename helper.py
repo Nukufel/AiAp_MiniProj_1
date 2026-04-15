@@ -117,12 +117,6 @@ def print_accuracy_and_loss(true, pred, pred_raw):
 def plot_accuracy_and_loss(
     accuracy, validation_accuracy, loss, validation_loss, log: bool = True
 ):
-    print(f"Training accuracy: {accuracy[-1]}")
-    print(f"Validation accuracy: {validation_accuracy[-1]}")
-    print(f"Training loss: {loss[-1]}")
-    print(f"Validation loss: {validation_loss[-1]}")
-
-
     plt.figure(figsize=(8, 8))
 
     plt.subplot(2, 1, 1)
