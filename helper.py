@@ -109,9 +109,10 @@ def plot_number_per_class(title, images, label_names):
     plt.title(title)
 
 
-def print_accuracy_and_loss(true, pred, pred_raw):
-    print(f'Validation accuracy: {accuracy_score(true, pred)}')
-    print(f'Validation Loss: {log_loss(true, pred_raw)}')
+def print_accuracy_and_loss(model, images):
+    result = model.evaluate(images, return_dict=True, verbose=0)
+    print(f'Validation accuracy: {result["accuracy"]}')
+    print(f'Validation Loss: {result["loss"]}')
 
 
 def plot_accuracy_and_loss(
@@ -215,7 +216,6 @@ def execute_cv(create_model, dataset, folds, epochs):
     results = {
         'Accuracy': [],
         'Loss': [],
-        'F1': [],
     }
 
     x, y = dataset_to_sklearn(dataset)
@@ -233,12 +233,10 @@ def execute_cv(create_model, dataset, folds, epochs):
             x=x_train, y=y_train, validation_data=(x_val, y_val), epochs=epochs
         )
 
-        y_val_pred_raw = model.predict(x_val, verbose=0)
-        y_val_pred = y_val_pred_raw.argmax(axis=1)
+        evalu_result = model.evaluate(x=x_val, y=y_val, return_dict=True, verbose=0)
 
-        results['Accuracy'].append(accuracy_score(y_val, y_val_pred))
-        results['Loss'].append(log_loss(y_val, y_val_pred_raw))
-        results['F1'].append(f1_score(y_val, y_val_pred, average='macro'))
+        results['Accuracy'].append(evalu_result["accuracy"])
+        results['Loss'].append(evalu_result["loss"])
 
     return results
 
@@ -247,7 +245,7 @@ def plot_cv_results(results):
     plt.figure(figsize=(20, 8))
 
     for index, (name, values) in enumerate(results.items()):
-        plt.subplot(1, 5, index + 1)
+        plt.subplot(1, len(results), index + 1)
         plt.title(name)
         plt.ylim([0, 1])
 
