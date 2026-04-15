@@ -73,7 +73,13 @@ def get_data(
     print('Number of testing images: ', len(test_samples))
     print('Class names: ', label_names)
 
-    return shuffled_data, train_samples, validation_samples, test_samples, label_names
+    return (
+        shuffled_data,
+        train_samples,
+        validation_samples,
+        test_samples,
+        label_names,
+    )
 
 
 def plot_samples(train_images, label_names):
@@ -128,7 +134,6 @@ def plot_accuracy_and_loss(
     plt.xlabel('Epoch')
     plt.legend()
 
-
     plt.subplot(2, 1, 2)
     plt.plot(loss, label='training loss')
     plt.plot(validation_loss, label='validation loss')
@@ -137,7 +142,6 @@ def plot_accuracy_and_loss(
     plt.ylabel('Accuracy')
     plt.xlabel('Epoch')
     plt.legend()
-
 
     plt.show()
 
@@ -233,10 +237,12 @@ def execute_cv(create_model, dataset, folds, epochs):
             x=x_train, y=y_train, validation_data=(x_val, y_val), epochs=epochs
         )
 
-        evalu_result = model.evaluate(x=x_val, y=y_val, return_dict=True, verbose=0)
+        evalu_result = model.evaluate(
+            x=x_val, y=y_val, return_dict=True, verbose=0
+        )
 
-        results['Accuracy'].append(evalu_result["accuracy"])
-        results['Loss'].append(evalu_result["loss"])
+        results['Accuracy'].append(evalu_result['accuracy'])
+        results['Loss'].append(evalu_result['loss'])
 
     return results
 
