@@ -7,8 +7,6 @@ from sklearn.metrics import (
     accuracy_score,
     log_loss,
 )
-from tensorflow.keras.metrics import categorical_accuracy
-from tensorflow.keras.losses import sparse_categorical_crossentropy
 from sklearn.model_selection import StratifiedKFold
 from matplotlib import pyplot as plt
 from tensorflow.python.data.ops.dataset_ops import DatasetV2
@@ -75,7 +73,7 @@ def get_data(
     print('Number of testing images: ', len(test_samples))
     print('Class names: ', label_names)
 
-    return data, train_samples, validation_samples, test_samples, label_names
+    return shuffled_data, train_samples, validation_samples, test_samples, label_names
 
 
 def plot_samples(train_images, label_names):
@@ -112,8 +110,8 @@ def plot_number_per_class(title, images, label_names):
 
 
 def print_accuracy_and_loss(true, pred, pred_raw):
-    print(f'Accuracy: {accuracy_score(true, pred)}')
-    print(f'Loss: {log_loss(true, pred_raw)}')
+    print(f'Validation accuracy: {accuracy_score(true, pred)}')
+    print(f'Validation Loss: {log_loss(true, pred_raw)}')
 
 
 def plot_accuracy_and_loss(
